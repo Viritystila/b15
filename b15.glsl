@@ -154,7 +154,7 @@ void main(void){
 
   vec2 uv = (gl_FragCoord.xy / iResolution.xy);
   //uv=gl_FragCoord.xy/vec2(1080,1920);
-  vec2 uv_noise=noiseUV(uv, 1, 40/it0);
+  vec2 uv_noise=noiseUV(uv, 1, 20/(10 ));
 
   vec2 uvi=uv;
   uv.y=1.0-uv.y;
@@ -209,7 +209,7 @@ void main(void){
 
   vec4 pf = texture2D(iPreviousFrame, uvi);
 
-        vec4 glitchText=glitch(uv_noise, uv,  v2, v1, it0/2, iVideo0, iVideo1);
+        vec4 glitchText=glitch(uv_noise, uv,  v0, v1, it0/2, iVideo0, iVideo1);
 
         vec4 bgVid=v0;//mix(v3, pf, 0);
 
@@ -227,26 +227,28 @@ void main(void){
 
 
   vec4 op2=colorRemoval(fg,bg, 0.2, 1, 0, 0, 0.6); //Black
-  //op2=mix(op2, pf, 0.91);
+  //op2=mix(op2, fg, 0);
 
   // vec4 cf6=chromaKey(fg, bg);
 
   //Mustaa alkuun
-  vec4 vt2=vec4(0,0,0,0);
+  //vec4 vt2=vec4(0,0,0,0);
 
   //Alkaa overpadilla ja tällä: Villellä poisonous woodpecker
-   vt2=colorRemoval(v2, vec4(0,0,0,0), 0.04, 1, 0.85, 0.4, 0.2);
-   vec4 vt2_cr=vt2;
-   vec4 vt2Col= waveColors(vt2, uv, 0.1/it1, it1, 10.1/it1, 10);
-   vt2=colorRemoval(vt2, c1d, 0.01, 1, 0, 0, 0);
-   vt2 = mix(vt2, vt2Col, vt2_cr);
-
+  //vt2=colorRemoval(v2, vec4(0,0,0,0), 0.04, 1, 0.85, 0.4, 0.2);
+  //vec4 vt2_cr=vt2;
+  //vec4 vt2Col= waveColors(vt2, uv, 0.1/it1, it1, 10.1/it1, 10);
+  vec4 vt2=colorRemoval(v2, op2, 0.1, 1, 0, 0.3, 0.5);
+  //vt2 = mix(vt2, pf, 1);
+          //vt2=op2;
   //Mukaan tulee mcsynth ja hapsiainen
-  vec4 vt3=colorRemoval(v1, v3, 0.2, 1, 0.0,0.0,0.6);
-  //vt2=mix(vt2, vt3, it0*it0*it0/10000000);
+  vec4 wv= waveColors(v1n, uv, 1, 0.1, 0.01, 10);
+  vec4 vt3=colorRemoval(v0, wv, 0.2, 1, 0.0,0.0,0.0);
+  vt2=vt3;//op2;//vt3;//mix(wv, v0, 1/it0);
 
-  //vt3=colorRemoval(v4d, pf, 0.06, 1, 0,0,0);
-  //vt2=mix(v0n, pf, 0.45);
+  //vt2=op2;
+  //vt3=colorRemoval(v0, v2, 0.06, 1, 0,0,0);
+  // vt2=vt3;//mix(v0n, pf, 0.45);
 
 
   //ja hapsiainen vaihtuu sormileikkiin, hiljennä Villelle finger commandoon
@@ -285,6 +287,6 @@ void main(void){
 
 
 
-  out_Color= op2;//op2;//mix(fg, pf, it0/5);//  mix(pf, fg, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
+  out_Color= vt2;//op2;//mix(fg, pf, it0/5);//  mix(pf, fg, 0.08); //cf6; //mix(v2, cf8, sin(iDataArray[0]));
 
 }
