@@ -83,7 +83,7 @@
 
 (trg :tom1
      tom
-     :in-trg [1] [(repeat 8 1)] [1 1 1 1] (repeat 5 [r])
+     :in-trg [1] ;[(repeat 128 1)] ; [1] [(repeat 8 1)] [1 1 1 1] (repeat 5 [r])
      :in-stick-level (repeat 13 [0.1]) [0.915]
      :in-amp [1])
 
@@ -95,9 +95,9 @@
 
 (trg :vb
      vintage-bass
-     :in-trg [1] [(unique-random-numbers 8)] ; (repeat 14 [r]) [1 2 3 [4 5 6 7]] [8 7 6 5 4 3 2 1]
+     :in-trg  [1] ; [1 1 r 1] [(unique-random-numbers 8)] ; (repeat 14 [r]) [1 2 3 [4 5 6 7]] [8 7 6 5 4 3 2 1]
      :in-gate-select  [1]
-     :in-amp [0.8]
+     :in-amp [0.6]
      :in-note (take 3 (cycle [(repeat 4 [(note :g2)])  (repeat 4 [(note :g#2)])]))
      (repeat 4 [(note :e3)])  (repeat 4 [(note :d3)])
      :in-a [0.001]
@@ -117,9 +117,10 @@
 (trg :bow
      bowed
      :in-trg (repeat 2  [r]) (vec (repeat 2 (seq [1 1 1 [1 [1 1]] ]))) [[1 1] 1 1 1]
-     (repeat 4 [1 r 1 1])
-     :in-amp [1]
-     :in-note [(chord :d2 :major)] (shuffle (chord :g2 :minor))
+    (repeat 4 [(repeat 16 1)])
+     :in-amp [1.5]
+     :in-note  (take 3 (cycle [(repeat 4 [(note :g2)])  (repeat 4 [(note :g#2)])]))
+     (repeat 4 [(note :e3)])  (repeat 4 [(note :d3)])
      :in-velocity [1]
      :in-gate-select [1] [1] [1] [1 1]
      :in-bow-offset [0.01]
@@ -242,25 +243,21 @@
 (t/set-video-fixed 4 :fw)
 
 
-(on-trigger (get-trigger-val-id :vb :in-trg) (fn [val] (t/set-dataArray-item 0 val)(t/set-fixed-buffer-index 0 :inc) ) ::vb1 )
+(on-trigger (get-trigger-val-id :bow :in-trg) (fn [val] (t/set-dataArray-item 0 val)(t/set-fixed-buffer-index 1 :inc) ) ::bow1 )
 
 
-(remove-event-handler ::vb1)
+(remove-event-handler ::bow1)
 
 (on-trigger (get-trigger-val-id :ks1 :in-trg) (fn [val] (t/set-dataArray-item 2 val) ) ::ks1 )
 
 (remove-event-handler ::ks1)
 
 
-(on-trigger (get-trigger-val-id :ks1 :in-decay) (fn [val] (t/set-dataArray-item 3 val) ) ::ks1_decay )
-
-(remove-event-handler ::ks1_decay)
-
-(on-trigger (get-trigger-val-id :vb :in-trg) (fn [val] (t/set-dataArray-item 1 val) ) ::vb )
+(on-trigger (get-trigger-val-id :vb :in-note) (fn [val] (t/set-dataArray-item 1 val) ) ::vb-note )
 
 
 
-(remove-event-handler ::vb)
+(remove-event-handler ::vb-note)
 
 
 
@@ -276,3 +273,5 @@
 
 
 (lss)
+
+(t/toggle-recording "/dev/video2")

@@ -154,7 +154,7 @@ void main(void){
 
   vec2 uv = (gl_FragCoord.xy / iResolution.xy);
   //uv=gl_FragCoord.xy/vec2(1080,1920);
-  vec2 uv_noise=noiseUV(uv, 1, 20/(10 ));
+  vec2 uv_noise=noiseUV(uv, 1, 20/(12 ));
 
   vec2 uvi=uv;
   uv.y=1.0-uv.y;
@@ -239,16 +239,17 @@ void main(void){
   //vec4 vt2_cr=vt2;
   //vec4 vt2Col= waveColors(vt2, uv, 0.1/it1, it1, 10.1/it1, 10);
   vec4 vt2=colorRemoval(v2, op2, 0.1, 1, 0, 0.3, 0.5);
-  //vt2 = mix(vt2, pf, 1);
+  vt2 = mix(vt2, op2, it1*sin(it1));
           //vt2=op2;
   //Mukaan tulee mcsynth ja hapsiainen
-  vec4 wv= waveColors(v1n, uv, 1, 0.1, 0.01, 10);
-  vec4 vt3=colorRemoval(v0, wv, 0.2, 1, 0.0,0.0,0.0);
-  vt2=vt3;//op2;//vt3;//mix(wv, v0, 1/it0);
+
+  vec4 wv= waveColors(v3n, uv, 1, 0.1, 0.1*it3*it3, 10);
+  vec4 vt3=colorRemoval(v0, wv, 0.18, 1, 0.0,0.0,0.0);
+  //vt2=op2;//op2;//vt3;//mix(wv, v0, 1/it0);
 
   //vt2=op2;
   //vt3=colorRemoval(v0, v2, 0.06, 1, 0,0,0);
-  // vt2=vt3;//mix(v0n, pf, 0.45);
+  vt2=mix(vt3, pf, 0.5*it3);
 
 
   //ja hapsiainen vaihtuu sormileikkiin, hiljennä Villelle finger commandoon
