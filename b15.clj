@@ -1,17 +1,6 @@
 (ns b15 (:use [trigger.trigger] [trigger.synths] [trigger.algo] [overtone.core]) (:require [viritystone.tone :as t]) )
 
 
-(require '[clojure.set :as set])
-
-(defn unique-random-numbers [n]
-  (let [a-set (set (take n (repeatedly #(rand-int n))))]
-    (concat a-set (set/difference (set (take n (range)))
-                                  a-set))))
-
-(defn fast [factor input] (vec (repeat factor (seq input ) )))
-
-(defn slow [factor input] (map vec (partition factor input)))
-
 (def bf2 (atom{}))
 
 (reset! bf2  {
@@ -25,27 +14,34 @@
               [0.125 ] {0.0625 0.5 0.125 0.5}})
 
 
-(trg :kick2 kick2 :in-trg (repeat 7 [r]) [(repeat 16 1)]
- :in-amp [3]
+(trg :kick2 kick2 :in-trg (rpl 4 (rtm rand-int 32  32 ) (rep 7 [r])) [(rep 8 1)]
+     :in-amp [3]
+
 )
 
+(stp :kick2)
 
-(trg :kick kick :in-trg   (fast 16 [1  [1.2 1.5]])
- (fast 16 [1.2  [1.9 2.5]])
+(trg :kick kick :in-trg   (fst 16 [1  [1.2 1.5]])
+     (fst 16 [1.2  [1.9 2.5]])
+
                                         ;(repeat 8 [1 r 1 1])
  :in-amp [0.01]
  :in-f3 [(range 90 200 8)] [(range 200 90 -16)] ; (repeat 6 [90])
 )
 
+(stp :kick)
+
 (stp :nh)
+
+(sta)
 
 (lss)
 
 (unique-random-numbers 20)
 
 (trg :nh hat1
-     :in-trg  (repeat 7 [(unique-random-numbers 8)]) [1 1 1 1 1 1 [1 1] [1 1 1 1]]
-     :in-amp [0.1])
+     :in-trg  (repeat 7 [(unique-random-numbers 8)]) [[1 1 1 1 1] 1 1 1 [1 1 1 1] 1 1 1]
+     :in-amp [0.03])
 
 
 (trg :nh2 soft-hat
@@ -95,15 +91,16 @@
 
 (trg :vb
      vintage-bass
-     :in-trg  [1] ; [1 1 r 1] [(unique-random-numbers 8)] ; (repeat 14 [r]) [1 2 3 [4 5 6 7]] [8 7 6 5 4 3 2 1]
-     :in-gate-select  [1]
+     :in-trg   (sfl  (fll 32 [r 1])) ; (repeat 14 [r]) [1 2 3 [4 5 6 7]] [8 7 6 5 4 3 2 1]
+     :in-gate-select   [1]
      :in-amp [0.6]
-     :in-note (take 3 (cycle [(repeat 4 [(note :g2)])  (repeat 4 [(note :g#2)])]))
-     (repeat 4 [(note :e3)])  (repeat 4 [(note :d3)])
+     :in-note  (trigger.algo/evr 8 (sfl (trigger.algo/fll 32 (trigger.algo/nts :e3 :e4 :e5))) (seq  (trigger.algo/fll 8 [(trigger.algo/fll 4 (trigger.algo/nts :g2 :g#2)) (trigger.algo/fll 16  (trigger.algo/nts :e2 :e#2))])) )
+
+                                        ;(evr 8 (fll 32 (nts :g3 :g4)) (apply conj (fll 8 [(fll 4 (nts :g2 :g#2)) (fll 16  (nts :e3 :e#3))])) )
      :in-a [0.001]
-     :in-d [0.3]
-     :in-s [0.7]
-     :in-r [0.8])
+     :in-d [0.93]
+     :in-s [0.5]
+     :in-r [0.5])
 
 
 
@@ -120,7 +117,7 @@
     (repeat 4 [(repeat 16 1)])
      :in-amp [1.5]
      :in-note  (take 3 (cycle [(repeat 4 [(note :g2)])  (repeat 4 [(note :g#2)])]))
-     (repeat 4 [(note :e3)])  (repeat 4 [(note :d3)])
+     (repeat 4 [(note :e3)])  (repeat 4 [(note :e4)])
      :in-velocity [1]
      :in-gate-select [1] [1] [1] [1 1]
      :in-bow-offset [0.01]
@@ -135,7 +132,7 @@
      bowed
      :in-trg [1 1 1 1]
      :in-amp [0.5]
-     :in-note (slow 1 (chord :d2 :minor))
+     :in-note (slw 1 (chord :d2 :minor))
      :in-velocity [1]
      :in-gate-select [0]
      :in-bow-offset [0.001]
@@ -168,7 +165,7 @@
     :in-trg [1]
     :in-freq  [(take 2 (cycle [(midi->hz (note :g3)) (midi->hz (note :g3)) ]))]
     :in-vibrate [25]
-    :in-dtune (slow 1 [(take 8 (cycle [0.2 0.3]))]) [0.1] [0.05] [0.01]
+    :in-dtune (slw 1 [(take 8 (cycle [0.2 0.3]))]) [0.1] [0.05] [0.01]
     :in-amp  [0.4])
 
 (stp :lead2)
@@ -201,20 +198,23 @@
 
 (stp :ping)
 
-(trg :super supersaw :in-freq [(range (midi->hz (note :d1))  (midi->hz (note :d2)) 0.5 )]
-     [ (midi->hz (note :d2))]
-      [(range (midi->hz (note :d2))  (midi->hz (note :d1)) -0.5 )]
-     :in-amp [0.5])
+(trg :super supersaw :in-freq  (rep 7  (trigger.algo/fll 16  (mhz (trigger.algo/nts :g2 :g#2))))
+     [(range  (first (mhz :e3))  (first (mhz :e1)) -0.5 )]
+      :in-amp [(sir 100 0.5 0.1 1000)]
+      )
+
 
 (stp :super)
 
-(stpa)
+(sta)
 
 (lss)
 
 (trg :op overpad
-     :in-trg [1 [1 1] 1] [1 1 1]
-     :in-gate-select [1])
+     :in-trg [(rep 4 1)]
+     :in-note  (fll 128  (nts :g2 :g#3))  (fll 128  (nts :e2 :e#3))
+     :in-gate-select [1]
+     :in-amp [0.15])
 
 (stp :op)
 
