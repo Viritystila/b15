@@ -1,5 +1,6 @@
 (ns b15 (:use [trigger.trigger] [trigger.synths] [trigger.algo] [overtone.core]) (:require [viritystone.tone :as t]) )
 
+(require '[trigger.insts :refer :all])
 
 (def bf2 (atom{}))
 
@@ -14,19 +15,24 @@
               [0.125 ] {0.0625 0.5 0.125 0.5}})
 
 
-(trg :kick2 kick2 :in-trg (rpl 4 (rtm rand-int 32  32 ) (rep 7 [r])) [(rep 8 1)]
-     :in-amp [3]
+(trg :kick2 kick2_i :in-trg (rpl 4 (rtm rand-int 32  32 ) (rep 8 [r])) [(rep 8 1)]
+     :in-amp [3])
 
-)
+(fx! :kick2 fx-compressor)
+
+(clrfx! :kick2)
 
 (stp :kick2)
 
-(trg :kick kick :in-trg   (fst 16 [1  [1.2 1.5]])
-     (fst 16 [1.2  [1.9 2.5]])
+(trg :kick kick
+     :in-trg [1 (rep 6 r) 1] [1 1 (rep 6 r) ] [r]
+     (rep 1 [1 (rep 24 r) 1 (rep 20 r) 1 (rep 15 r) 1 (rep 10 r) 1 (rep 8 r) 1 (rep 6 r) 1 (rep 4 r) 1 (rep 2 r) 1])
+
+     ;[1 (rep 32 r) 1 (rep 16 r) 1 (rep 8 r) 1 (rep 4 r) 1 (rep 2 r) 1 r 1]
 
                                         ;(repeat 8 [1 r 1 1])
- :in-amp [0.01]
- :in-f3 [(range 90 200 8)] [(range 200 90 -16)] ; (repeat 6 [90])
+ :in-amp [0.05]
+ :in-f3 [(rep 8 (mhz :g0))] ; (repeat 6 [90])
 )
 
 (stp :kick)
@@ -54,8 +60,8 @@
 
 (stp :nh2)
 
-(trg :hz haziti-clap :in-trg [1] (repeat 7 [1 1])
-     :in-freq [20]
+(trg :hz haziti-clap :in-trg (rep 16 rtm rand-int 32 32)
+     :in-freq [200]
      :in-amp [0.5])
 
 (lss)
@@ -94,7 +100,32 @@
      :in-trg   (sfl  (fll 32 [r 1])) ; (repeat 14 [r]) [1 2 3 [4 5 6 7]] [8 7 6 5 4 3 2 1]
      :in-gate-select   [1]
      :in-amp [0.6]
-     :in-note  (trigger.algo/evr 8 (sfl (trigger.algo/fll 32 (trigger.algo/nts :e3 :e4 :e5))) (seq  (trigger.algo/fll 8 [(trigger.algo/fll 4 (trigger.algo/nts :g2 :g#2)) (trigger.algo/fll 16  (trigger.algo/nts :e2 :e#2))])) )
+     :in-note  (trigger.algo/evr 8 (sfl (trigger.algo/fll 8 (trigger.algo/chd :iii :d3 :minor))) (seq  (trigger.algo/fll 8 [(trigger.algo/fll 4 (trigger.algo/nts :d2 :a2)) (trigger.algo/fll 16  (trigger.algo/nts :a2 :f2))])) )
+
+                                        ;(evr 8 (fll 32 (nts :g3 :g4)) (apply conj (fll 8 [(fll 4 (nts :g2 :g#2)) (fll 16  (nts :e3 :e#3))])) )
+     :in-a [0.001]
+     :in-d [0.93]
+     :in-s [0.5]
+     :in-r [0.5])
+
+(map (fn [x] (find-note-name x)) (chord :d4 :minor))
+
+(alg :vb :in-trg 0  example_markov bf2)
+
+(rm-alg :vb :in-trg 0)
+
+(sta)
+(stp :vb)
+
+
+
+
+(trg :vb
+     vintage-bass
+     :in-trg   [(rep 8 1)] ; (repeat 14 [r]) [1 2 3 [4 5 6 7]] [8 7 6 5 4 3 2 1]
+     :in-gate-select   [1]
+     :in-amp [0.6]
+     :in-note  (trigger.algo/chd :i :g2 :melodic-minor 4)
 
                                         ;(evr 8 (fll 32 (nts :g3 :g4)) (apply conj (fll 8 [(fll 4 (nts :g2 :g#2)) (fll 16  (nts :e3 :e#3))])) )
      :in-a [0.001]
@@ -103,28 +134,42 @@
      :in-r [0.5])
 
 
-
-(alg :vb :in-trg 0  example_markov bf2)
-
-(rm-alg :vb :in-trg 0)
-
-
-(stp :vb)
-
 (trg :bow
-     bowed
-     :in-trg (repeat 2  [r]) (vec (repeat 2 (seq [1 1 1 [1 [1 1]] ]))) [[1 1] 1 1 1]
-    (repeat 4 [(repeat 16 1)])
+     bowed_i
+     :in-trg [(rep 4 1)] ;(repeat 2  [r]) (vec (repeat 2 (seq [1 1 1 [1 [1 1]] ]))) [[1 1] 1 1 1]
+    (rep 4 rtm rand-int 16 16)
      :in-amp [1.5]
-     :in-note  (take 3 (cycle [(repeat 4 [(note :g2)])  (repeat 4 [(note :g#2)])]))
-     (repeat 4 [(note :e3)])  (repeat 4 [(note :e4)])
+     :in-note  (take 3 (cycle [(repeat 4 (nts :g2))  (repeat 4 (nts :g#2))]))
+     (repeat 4 (nts :e3))  (repeat 4 (nts :e4))
      :in-velocity [1]
-     :in-gate-select [1] [1] [1] [1 1]
+     :in-gate-select  (rep 3 [1]) [1]
+     :in-bow-offset [0.01]
+     :in-bow-position  [1.75]
+     :in-bow-slope [0.8]
+     :in-vib-freq [0.127]
+     :in-vib-gain [0.19])
+
+(fx! :bow fx-freeverb)
+(fx! :bow fx-distortion-tubescreamer)
+
+(clrfx! :bow)
+
+(stp :bow)
+
+
+
+(trg :bow2
+     bowed
+     :in-trg [(rep 4 1)] [(rep 8 1)] [(rep 16 1)]  [(rep 8 1)]
+     :in-amp [1.5]
+     :in-note  (trigger.algo/chd :i :g1 :melodic-minor 4)
+     :in-gate-select [1]
      :in-bow-offset [0.01]
      :in-bow-position [1.75]
      :in-bow-slope [0.08]
      :in-vib-freq [0.127]
      :in-vib-gain [0.19] )
+
 
 (stp :bow)
 
@@ -148,7 +193,7 @@
 (lss)
 
 (trg :ks1
-     ks1
+     ks1_i
      :in-trg  [(repeat 16 1)] [(repeat 8 1)] (repeat 2 [1 r 1 r]) (repeat 4 [1 [1 1] [1 1] 1])
      :in-dur [3]
      :in-amp [1]
