@@ -15,18 +15,28 @@
               [0.125 ] {0.0625 0.5 0.125 0.5}})
 
 
-(trg :kick2 kick2_i :in-trg (rpl 4 (rtm rand-int 32  32 ) (rep 8 [r])) [(rep 8 1)]
+(trg :kick2 kick2_i :in-trg   (rep 7 [1 1 1 1]) [1 [1 r] 1  [1 1]]
      :in-amp [3])
 
-(fx! :kick2 fx-compressor)
+(fx! :kick2 fx-distortion-tubescreamer)
 
 (clrfx! :kick2)
 
-(stp :kick2)
+(do
+  (volume! :kick2 0)
+  (clrfx! :kick2)
 
-(trg :kick kick
-     :in-trg [1 (rep 6 r) 1] [1 1 (rep 6 r) ] [r]
-     (rep 1 [1 (rep 24 r) 1 (rep 20 r) 1 (rep 15 r) 1 (rep 10 r) 1 (rep 8 r) 1 (rep 6 r) 1 (rep 4 r) 1 (rep 2 r) 1])
+  (trg :kick2 kick2_i :in-trg  [(rep 16 1 )]     :in-amp [3])
+  (Thread/sleep 1000)
+  (volume! :kick2 1)
+  (Thread/sleep 1000)
+
+(trg :kick2 kick2_i :in-trg   (rep 7 [1 1 1 1]) [1 [1 r] 1  [1 1]]
+     :in-amp [3])
+  )
+
+(trg :kick kick_i
+     :in-trg (rep 2  [1 1 1 1 r r r r 1 1 1 1 r r r r]) [1 r r r r r r r r 1 r r r r r r r 1 r r r r r r 1 r r r r r 1 r r r r 1 r r r 1 r r 1] [(rep 8 1)]
 
      ;[1 (rep 32 r) 1 (rep 16 r) 1 (rep 8 r) 1 (rep 4 r) 1 (rep 2 r) 1 r 1]
 
@@ -45,9 +55,10 @@
 
 (unique-random-numbers 20)
 
-(trg :nh hat1
-     :in-trg  (repeat 7 [(unique-random-numbers 8)]) [[1 1 1 1 1] 1 1 1 [1 1 1 1] 1 1 1]
-     :in-amp [0.03])
+(trg :nh hat2_i
+     :in-trg  [(rep 8 1)] [[1 1 1 1 1] 1 1 1 [1 1 1 1] 1 1 1] ; (repeat 7 [(unique-random-numbers 8)])
+     :in-amp [0.3]
+     :in-decay  [(range 0.01 0.1 0.01)] [[0.1 0.1 0.1 0.1 0.1] r r r [1 1 1 1] r r r r])
 
 
 (trg :nh2 soft-hat
@@ -159,19 +170,27 @@
 
 
 (trg :bow2
-     bowed
-     :in-trg [(rep 4 1)] [(rep 8 1)] [(rep 16 1)]  [(rep 8 1)]
-     :in-amp [1.5]
-     :in-note  (trigger.algo/chd :i :g1 :melodic-minor 4)
-     :in-gate-select [1]
-     :in-bow-offset [0.01]
-     :in-bow-position [1.75]
-     :in-bow-slope [0.08]
-     :in-vib-freq [0.127]
-     :in-vib-gain [0.19] )
+     bowed_i
+     :in-trg [(rep 4 1)]
+     :in-amp [0.5]
+     :in-note  (evr 16  (vec  (range (note :e1)  (note :e8) 10 ))  (evr 8  (vec  (range (note :e8)  (note :e1) -10 ))   (rep 16 (fll 16 (nts :e1 :e2))) ) )
 
+     ;(trigger.algo/chd :i :g)
+     :in-gate-select [0]
+     :in-bow-offset [0.001]
+     :in-bow-position [0.075]
+     :in-bow-slope [0.008]
+     :in-vib-freq [0.00127]
+     :in-vib-gain [0.0019] )
 
-(stp :bow)
+(fx! :bow2 fx-reverb)
+
+(clrfx! :bow2)
+
+(sta)
+
+(stp :bow2)
+
 
 (trg :bow2
      bowed
@@ -194,13 +213,37 @@
 
 (trg :ks1
      ks1_i
-     :in-trg  [(repeat 16 1)] [(repeat 8 1)] (repeat 2 [1 r 1 r]) (repeat 4 [1 [1 1] [1 1] 1])
+     :in-trg [(repeat 16 1)] [(repeat 8 1)]  (repeat 2 [1 r 1 r]) (repeat 4 [1 [1 1] [1 1] 1])
      :in-dur [3]
      :in-amp [1]
      :in-note (repeat 2 [(chord-degree :i :d2 :minor)])  [(reverse [(chord-degree :iv :g2 :minor)])]
-     :in-decay [(range 0.1 2 0.1) (range 2 0.1 -0.1)]
-     :in-coef [(range 0.1 0.9 0.1)]  )
+     :in-decay [0.5]                ;[(range 0.1 2 0.1) (range 2 0.1 -0.1)]
+     :in-coef [0.1]; [(range 0.1 0.9 0.1)]
+     )
 
+
+(trg :ks1
+     ks1_i
+     :in-trg [1 1 1 1] [1 1 1 1] [1 1 1 1]  [1 1 1 1] [1 1 1 [1 1]]
+     :in-dur [1]
+     :in-amp [1]
+     :in-note  [(nts :a#2 :a#2 :a#2 :a#2)] [(nts :c#2 :a#2 :c#2 :f2)] [(nts :a#2 :f2)] [(nts :d2 :d2 :d2 :d2)]   [ (seq (nts :d2 :d2 :d2))   (nts :d2 :d2)] ;(slw 3  (chord-degree :i :d2 :minor))
+     :in-decay  [0.9] ;(slw 20 (first [(seq (range 0.2 5 0.01)) (seq (range 5 0.2 -0.01))]))
+     :in-coef  (slw 20 (apply concat [(seq (range 0.1 0.9 0.01)) (seq (range 0.9 0.1 -0.01))]))
+     )
+
+(println (slw 2 (apply concat [(seq (range 0.1 1 0.01)) (seq (range 1 0.1 -0.01))]) ))
+
+(println   (apply concat [(seq (range 0.1 1 0.01)) (seq (range 1 0.1 -0.01))]))
+
+(println "asas")
+
+
+(slw3 (chord-degree :i :d2 :minor))
+
+(slw 3 [1 2 3 4])
+
+[(chord-degree :i :d2 :minor)]
 
 (stp :ks1)
 
@@ -243,11 +286,14 @@
 
 (stp :ping)
 
-(trg :super supersaw :in-freq  (rep 7  (trigger.algo/fll 16  (mhz (trigger.algo/nts :g2 :g#2))))
-     [(range  (first (mhz :e3))  (first (mhz :e1)) -0.5 )]
-      :in-amp [(sir 100 0.5 0.1 1000)]
-      )
+(trg :super supersaw_i :in-freq (evr 16  (vec  (range  (first (mhz (note :e1)))  (first (mhz (note :e8))) 10 ))  (evr 8  (vec  (range  (first (mhz (note :e8)))  (first (mhz (note :e1))) -10 ))   (rep 16 (fll 2 (first (mhz (nts :g2 :g#2))))) ))
+     ;(rep 7  (trigger.algo/fll 32  (first (mhz (trigger.algo/nts :g2 :g#2))) ))  [(range  (first (mhz :e3))  (first (mhz :e1)) -0.5 )]  (rep 7  (trigger.algo/fll 8   (first (mhz (trigger.algo/nts :g2 :g#2)))))  [(range  (first (mhz :e1))  (first (mhz :e3)) 0.5 )]
 
+     :in-amp  ;(map (fn [x] (fst x (mapv  (fn [x] (sqr x 0.15 0.85 1 0.0)) (range 0 1 0.1)))) (range 5 15 1))
+     (fst 8 (mapv  (fn [x] (sqr x 0.15 0.85 1 0.0)) (range 0 1 0.05))) ; [(sir 100 1.0 0.1 25)]
+     )
+
+(odoc squared-shape)
 
 (stp :super)
 
