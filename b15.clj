@@ -14,6 +14,32 @@
 (reset! bf2  {[0.0625] {0.0625 0.5 0.125 0.5}
               [0.125 ] {0.0625 0.5 0.125 0.5}})
 
+;Brekakbeat
+
+
+(trg :kick2 kick2_i :in-trg (rep 6 (del 1 1 (del 0 3 [1 1 ])))
+     ;(del 1 1 (del 0 3 [1 1 [1 1 1 1] 1 1]))
+     ;(del 0 0 (del 0 3 [[(rep 64 1)] 1 [(rep 32 1)] 1]))
+     :in-amp [1])
+
+
+(trg :nh hat2_i
+     :in-trg  (rep 3 [1 1]) [1 [1 1 r r] 1 [r r 1 1]]
+     ;[1 [1 1 r r] [(rep 16 1)] [[(rep 16 1 )] [(rep 32 1)]] ]
+     ;[1 [(rep 8 1)]]
+     ; [[(rep 64 1)] [(rep 8 1)] [(rep 16 1)] 1 ]
+    ; (rep 2 [1 1])
+    ; [1 [1 r 1 [(rep 16 1)] ]]
+    ; [[(rep 16 1)] [(rep 8 1)] [(rep 128 1)] 1 ]
+     :in-amp [0.3]
+     :in-decay  [0.1 0.1] ; [[0.1 0.1 0.1 0.1 0.1] r r r [1 1 1 1] r r r r]
+     )
+
+
+;
+
+
+
 
 (trg :kick2 kick2_i :in-trg   (rep 7 [1 1 1 1]) [1 [1 r] 1  [1 1]]
      :in-amp [3])
