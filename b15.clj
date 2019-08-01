@@ -19,32 +19,61 @@
 (set-pattern-duration (/ 1 0.5625))
 
 (trg :kick2 kick2_i :in-trg (rep 3 (del 1 1 (del 0 3 [1 1 ]))) [[1 1 1 r r r r r] 1]
-      (rep 4 (del 1 1 (del 0 3 [1 1 ])))
-     ;(del 1 1 (del 0 3 [1 1 [1 1 1 1] 1 1]))
-     ;(del 0 0 (del 0 3 [[(rep 64 1)] 1 [(rep 32 1)] 1]))
+      (rep 3 (del 1 1 (del 0 3 [1 1 ])))  [[r r r 1] [r 1 1 r r r r r]]
      :in-amp [1])
 
+
+(trg :kick2 kick2_i :in-trg  [[1 1 1 r r r r r] 1]
+       [(rep 16 [r 1] )]
+       [[r r r 1] [r 1 1 r r r r r]]
+     :in-amp [1])
+
+(stp :kick2)
 
 (trg :nh hat2_i
      :in-trg  (rep 3 [1 1]) [1 [1 1 r r] 1 [r r 1 1]]
      (rep 3 [1 1]) [ [(rep 16 1)]  [(rep 4 1 )] [(rep 64 1)] 1]
      (rep 3 [1 1]) [1 [1 1 1 1 1 r r r ] [r 1] r]
-     (rep 3 [1 1]) [1 [(rep 4 1)] [(rep 64 1)] [(rep 8 1)] ]
-
-     ;[1 [(rep 8 1)]]
-     ; [[(rep 64 1)] [(rep 8 1)] [(rep 16 1)] 1 ]
-    ; (rep 2 [1 1])
-    ; [1 [1 r 1 [(rep 16 1)] ]]
-    ; [[(rep 16 1)] [(rep 8 1)] [(rep 128 1)] 1 ]
-     :in-amp [0.3]
-     :in-decay  (rep 3 [0.2]) [0.1] ; [[0.1 0.1 0.1 0.1 0.1] r r r [1 1 1 1] r r r r]
+     (rep 3 [1 1]) [1 [1 1 1 1 1 r r r ] [r [1 1]] r]
+     :in-amp [0.2]
+     :in-decay  (rep 3 [0.2]) [0.2] ; [[0.1 0.1 0.1 0.1 0.1] r r r [1 1 1 1] r r r r]
      )
 
 
-;
+(trg :nh hat2_i
+     :in-trg  [(rep 8 1)] [(rep 16 1)]  [ [(rep 16 1)]  [(rep 4 1 )] [(rep 64 1)] 1]
+     :in-amp [0.2]
+     :in-decay  [0.3] [(range 0.1 1 0.1)] [(range 0.1 1 0.1)] ; [[0.1 0.1 0.1 0.1 0.1] r r r [1 1 1 1] r r r r]
+     )
+
+
+(stp :nh)
+
+
+(defn rep4 [x] (rep 4 x))
+
+
+(trg :op overpad
+     :in-trg  [1] ; (rep 3 (del 2 1 (del 0 1 [1 1 1 1 ]))) [1 1 1 1] ; [[1 1 1 r r r r r] 1]
+      ;(rep 4 (del 1 1 (del 0 3 [1 1 ]))) ;[1 1 1 1] ;  [r] [r] [r]
+     :in-note  (rep 3 [(nts :e2)]) [(nts :d2)]
+     (rep 4 [(nts :c2)])
+      (rep 4 [(nts :g2)])
+      (evr 1 rep4 (slw 3 (chr :e2 :minor)))
+
+                                        ;(fst 32 (acc [(range (first (nts :e3)) (first (nts :e4)) 1)]))
+      ;(fst 32 (acc [(range (first (nts :e4)) (first (nts :e3)) -1)]))
+      :in-gate-select [0]
+      :in-attack [0.001]
+      :in-decay  [1.1]
+      :in-sustain [1.01]
+      :in-release [0.35]
+      :in-amp [0.5])
+
+
 (sta)
 
-
+(stp :op)
 
 (trg :kick2 kick2_i :in-trg   (rep 7 [1 1 1 1]) [1 [1 r] 1  [1 1]]
      :in-amp [3])
