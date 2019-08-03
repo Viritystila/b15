@@ -1,8 +1,35 @@
-(ns b15 (:use [trigger.trigger] [trigger.synths] [trigger.algo] [overtone.core]) (:require [viritystone.tone :as t]) )
+(ns b15 (:use [trigger.trigger] [trigger.synths] [trigger.algo] [trigger.speech] [overtone.core]) (:require [viritystone.tone :as t]) )
 
 (require '[trigger.insts :refer :all])
 
 (def bf2 (atom{}))
+
+(add-sample "a" (string-to-buffer "bgbgb dbdbd aaaaa ppfpdps"))
+
+(generate-markov-text "kalevala.txt" 60)
+
+
+(add-sample "d" (string-to-buffer (generate-markov-text "kalevala.txt" 100)))
+
+
+(add-sample "e" (string-to-buffer (generate-markov-text "paradiselost.txt" 100)))
+
+
+(add-sample "f" (string-to-buffer (generate-markov-text "generalrelativity.txt" 100)))
+
+
+(add-sample "g" (string-to-buffer (generate-markov-text "daq.txt" 100)))
+
+
+(trg :sampl trg-sampler_i :in-trg  [r] :in-buf ["g"] :in-loop [1] :in-step (slw 4 [(sir 32 1 1 32)]))
+
+(fx! :sampl fx-echo)
+
+(clrfx! :sampl)
+
+(stp :sampl)
+
+
 
 (reset! bf2  {
                      [0.125] { 0.125 0.91  0.25 0.06  0.5 0.099   0.0625 0.9 }
@@ -14,6 +41,7 @@
 (reset! bf2  {[0.0625] {0.0625 0.5 0.125 0.5}
               [0.125 ] {0.0625 0.5 0.125 0.5}})
 
+(sta)
 ;Brekakbeat
 
 (set-pattern-duration (/ 1 0.5625))
@@ -23,10 +51,15 @@
      :in-amp [1])
 
 
+
 (trg :kick2 kick2_i :in-trg  [[1 1 1 r r r r r] 1]
        [(rep 16 [r 1] )]
        [[r r r 1] [r 1 1 r r r r r]]
      :in-amp [1])
+
+
+(trg :kick2 kick4_i :in-trg [1])
+
 
 (stp :kick2)
 
@@ -131,7 +164,7 @@
 
 (stp :nh2)
 
-(trg :hz haziti-clap :in-trg (rep 16 rtm rand-int 32 32)
+(trg :hz haziti-clap_i :in-trg [1 1 1 ]
      :in-freq [200]
      :in-amp [0.5])
 
@@ -167,7 +200,7 @@
 (stp :tom1)
 
 (trg :vb
-     vintage-bass
+     vintage-bass_i
      :in-trg   (sfl  (fll 32 [r 1])) ; (repeat 14 [r]) [1 2 3 [4 5 6 7]] [8 7 6 5 4 3 2 1]
      :in-gate-select   [1]
      :in-amp [0.6]
