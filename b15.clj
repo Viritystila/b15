@@ -27,12 +27,15 @@
 (add-sample "i" (string-to-buffer (generate-markov-text "generalparadiselost.txt" 200)))
 
 
+(add-sample "j" (string-to-buffer (generate-markov-text "generalparadisedaqx2.txt" 200)))
+
+
 
 (trg :sampl trg-sampler_i
      :in-trg  [r]
-     :in-buf ["h"]
+     :in-buf ["j"]
      :in-loop [1]
-     :in-step [2]  (slw 12 [(sir 32 2.5 0 32)])
+     :in-step [2] ; (slw 12 [(sir 32 2.5 0 32)])
      )
 
 (fx! :sampl fx-echo)
