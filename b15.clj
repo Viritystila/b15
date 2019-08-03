@@ -18,7 +18,7 @@
 (add-sample "f" (string-to-buffer (generate-markov-text "generalrelativity.txt" 100)))
 
 
-(add-sample "g" (string-to-buffer (generate-markov-text "daq.txt" 100)))
+(add-sample "g" (string-to-buffer (generate-markov-text "daq.txt" 10)))
 
 
 (add-sample "h" (string-to-buffer (generate-markov-text "generalparadisedaq.txt" 200)))
@@ -30,17 +30,20 @@
 (add-sample "j" (string-to-buffer (generate-markov-text "generalparadisedaqx2.txt" 200)))
 
 
+(add-sample "k" (string-to-buffer (generate-markov-text "generalx2paradisedaqx2.txt" 200)))
+
+
 
 (trg :sampl trg-sampler_i
      :in-trg  [r]
-     :in-buf ["j"]
+     :in-buf ["g"] ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
      :in-loop [1]
-     :in-step [2] ; (slw 12 [(sir 32 2.5 0 32)])
+     :in-step [2] [2] [1] [1]            ; (slw 2 [(sir 32 2.5 0 32)])
      )
 
 (fx! :sampl fx-echo)
 
-(fx! :sampl fx-reverb)
+(fx! :sampl fx-feedback)
 
 (clrfx! :sampl)
 
@@ -271,6 +274,7 @@
      :in-vib-gain [0.19])
 
 (fx! :bow fx-freeverb)
+
 (fx! :bow fx-distortion-tubescreamer)
 
 (clrfx! :bow)
