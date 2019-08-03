@@ -21,15 +21,34 @@
 (add-sample "g" (string-to-buffer (generate-markov-text "daq.txt" 100)))
 
 
-(trg :sampl trg-sampler_i :in-trg  [r] :in-buf ["g"] :in-loop [1] :in-step (slw 4 [(sir 32 1 1 32)]))
+(add-sample "h" (string-to-buffer (generate-markov-text "generalparadisedaq.txt" 200)))
+
+
+(add-sample "i" (string-to-buffer (generate-markov-text "generalparadiselost.txt" 200)))
+
+
+
+(trg :sampl trg-sampler_i
+     :in-trg  [r]
+     :in-buf ["h"]
+     :in-loop [1]
+     :in-step [2]  (slw 12 [(sir 32 2.5 0 32)])
+     )
 
 (fx! :sampl fx-echo)
 
+(fx! :sampl fx-reverb)
+
 (clrfx! :sampl)
+
+
+(sir 8 1 0.0 4)
+
+(sta)
 
 (stp :sampl)
 
-
+(list-samples)
 
 (reset! bf2  {
                      [0.125] { 0.125 0.91  0.25 0.06  0.5 0.099   0.0625 0.9 }
@@ -89,20 +108,17 @@
 (trg :op overpad
      :in-trg  [1] ; (rep 3 (del 2 1 (del 0 1 [1 1 1 1 ]))) [1 1 1 1] ; [[1 1 1 r r r r r] 1]
       ;(rep 4 (del 1 1 (del 0 3 [1 1 ]))) ;[1 1 1 1] ;  [r] [r] [r]
-     :in-note  (rep 3 [(nts :e2)]) [(nts :d2)]
-     (rep 4 [(nts :c2)])
-      (rep 4 [(nts :g2)])
-      (evr 1 rep4 (slw 3 (chr :e2 :minor)))
-
-                                        ;(fst 32 (acc [(range (first (nts :e3)) (first (nts :e4)) 1)]))
-      ;(fst 32 (acc [(range (first (nts :e4)) (first (nts :e3)) -1)]))
+     :in-note  (rep 3 ["e2"]) ["b2"]
+     (rep 4 ["f#2"])
+      (rep 4 ["d3"])
       :in-gate-select [0]
       :in-attack [0.001]
       :in-decay  [1.1]
       :in-sustain [1.01]
       :in-release [0.35]
-      :in-amp [0.5])
+      :in-amp [1])
 
+(map find-note-name (chr :e2 :7sus2))
 
 (sta)
 
@@ -189,9 +205,9 @@
 
 (trg :tom1
      tom
-     :in-trg [1] ;[(repeat 128 1)] ; [1] [(repeat 8 1)] [1 1 1 1] (repeat 5 [r])
+     :in-trg [1 1 1 1] ;[(repeat 128 1)] ; [1] [(repeat 8 1)] [1 1 1 1] (repeat 5 [r])
      :in-stick-level (repeat 13 [0.1]) [0.915]
-     :in-amp [1])
+     :in-amp [3])
 
 (alg :tom1 :in-trg 0  example_markov bf2)
 
@@ -221,7 +237,7 @@
 (sta)
 (stp :vb)
 
-
+(lss)
 
 
 (trg :vb
@@ -241,10 +257,8 @@
 (trg :bow
      bowed_i
      :in-trg [(rep 4 1)] ;(repeat 2  [r]) (vec (repeat 2 (seq [1 1 1 [1 [1 1]] ]))) [[1 1] 1 1 1]
-    (rep 4 rtm rand-int 16 16)
      :in-amp [1.5]
-     :in-note  (take 3 (cycle [(repeat 4 (nts :g2))  (repeat 4 (nts :g#2))]))
-     (repeat 4 (nts :e3))  (repeat 4 (nts :e4))
+     :in-note   [(repeat 4 "g2")  (repeat 4 "g#2")]
      :in-velocity [1]
      :in-gate-select  (rep 3 [1]) [1]
      :in-bow-offset [0.01]
