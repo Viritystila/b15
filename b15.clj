@@ -3,7 +3,8 @@
         [trigger.synths]
         [trigger.algo]
         [trigger.speech]
-        [trigger.samples] [overtone.core]) (:require [viritystone.tone :as t]))
+        [trigger.samples]
+        [trigger.trg_fx] [overtone.core]) (:require [viritystone.tone :as t]))
 
 (require '[trigger.insts :refer :all])
 
@@ -66,17 +67,27 @@
 
 (add-tts-sample "i"   "daq.txt"  200)
 
-(trg :sampl trg-sampler_i
-     :in-trg  [r]
-     :in-buf ["i"]; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
-     :in-loop [1]
-     :in-step [2]                        ;(slw 1 [(sir 32 2.5 1 32)])
+(trg :sampl trg-sampler
+     :in-trg  [(rep 8 1)]; [r]            ; [1] [r]
+     :in-buf  ["bd1"] ; ["f"]  ["g"] ["f"] ["bd1"]    ; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
+     :in-loop [0]
+     :in-start-pos [0]                ;[(range 10000 20000 1000)] [0] [0]
+     :in-step [2] [1.75]           ;(slw 1 [(sir 32 2.5 1 32)])
      :in-amp [1.0])
 
+(trg! :sampl :e trg-fx-echo :in-delay-time [0.01 0.05] [0.1] [0.05] :in-amp [1])
+
+
+(trg! :sampl :e1 trg-fx-distortion )
+
+
+(stp :e1)
+
+(lss)
 
 (fx! :sampl fx-echo)
 
-
+()
 (stp :sampl)
 
 (sta)
@@ -103,10 +114,13 @@
 
 (trg :sampl3 trg-sampler_i
      :in-trg  [r]
-     :in-buf ["e"]; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
+     :in-buf ["f"]; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
      :in-loop [1]
      :in-step  [2.0]              ;(map vec (partition 1 (range -4 4 0.5)))
      :in-amp [1])
+
+
+ (stp :sampl3)
 
 (map vec (partition 1 (range 0.5 10)))
 
@@ -189,16 +203,29 @@
 
 (add-tts-sample "k"  "generalx2paradisedaqx2.txt" 200)
 
+(add-tts-sample "k_2"  "generalx2paradisedaqx2.txt" 200)
 
-(trg :sampl trg-sampler_i
+
+(trg :sampl trg-sampler
      :in-trg  [r]
-     :in-buf ["k"]; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
+     :in-buf ["k"]          ; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
      :in-loop [1]
      :in-step (rep 7 [2])(slw 1 [(sir 32 2.5 1 32)])
-     :in-amp [0.2])
+     :in-amp [0.3])
+
+(stp :sampl)
+
+(trg! :sampl :keffect trg-fx-echo
+      :in-decay-time [1]
+      :in-delay-time (slw 8 [(sir 32 0.5 0.5 32)])
+      :in-amp [1])
 
 
-(trg :nh hat2_i
+(lss)
+
+(stp :keffect)
+
+(trg :nh hat2
      :in-trg  (rep 3 [1 1]) [1 [1 1 r r] 1 [r r 1 1]]
      (rep 3 [1 1]) [ [(rep 16 1)]  [(rep 4 1 )] [(rep 64 1)] 1]
      (rep 3 [1 1]) [1 [1 1 1 1 1 r r r ] [r 1] r]
@@ -207,63 +234,91 @@
      :in-decay  (rep 3 [0.2]) [0.5] ; [[0.1 0.1 0.1 0.1 0.1] r r r [1 1 1 1] r r r r]
      )
 
+(stp :nh)
 
-(trg :nh hat2_i
+(trg :nh hat2
      :in-trg  [(rep 8 1)]
      [(rep 16 1)]
      [[(rep 16 1)]
       [(rep 4 1 )]
       [(rep 64 1)] 1]
      [r]
-     :in-amp [0.5]
+     :in-amp [0.2]
      :in-decay  [0.3] [(range 0.1 1 0.1)] [(range 0.1 1 0.1)] ; [[0.1 0.1 0.1 0.1 0.1] r r r [1 1 1 1] r r r r]q
      )
 
+(trg! :nh :nheff trg-fx-distortion2 :in-amount [0.195])
+
+(volume! :nh 0.125)
+
 (stp :nh)
 
-(lss)
+(set-pattern-duration (/ 1 0.5265))
 
-(sta)
-
-(set-pattern-duration 2)
 (set-pattern-delay 1.32)
 
-
-;hyvää bassoa
 (trg :vb
-     vintage-bass_i
+     vintage-bass
      :in-trg   ; [(rep 6 "a4")]
                                         ;(vec (repeat 2 (seq ["b4" "b4" "b4" ["e4" ["e4" "d4"]] ])))
                                         ;[["a4" "d4"] "e4" "b4" "b4"]
-     [["b4" "e4"] "b4" "b4" ["e4" ["e4" "d4"]] ]
+     ;[["b4" "e4"] "b4" "b4" ["e4" ["e4" "d4"]] ]
      ;(repeat  3 [r])
-     ;["a5"]
-     ;["b5"]
-     ;["d5"]
-     ;["e5" "d3" "b2" "b4"]
-     :in-gate-select   (rep 4 [1]) (rep 4 [0])
+     [(rep 16 "a5")]
+     [(rep 16 "b5")]
+     [(rep 16 "d5")]
+     [(rep 2 "e4")  (rep 2 "c#3")  (rep 2 "b2")  (rep 2 "b1")]
+     [(rep 16  "b1")]
+     [(rep 16 "d1")]
+     [(rep 16 "a1")]
+     (fst 1 ["c#1" "e2" "b3" "b4"])
+     :in-gate-select  (rep 3 [0]) [1]    ;(rep 4 [0])
      :in-amp [1.4]
      :in-note  ":in-trg"
      :in-a [0.001]
      :in-d [0.93]
-     :in-s [0.95]
-     :in-r [0.35])
+     :in-s [0.945]
+     :in-r [3.85])
 
-(fx! :vb fx-distortion2)
-(fx! :vb fx-reverb)
-(clrfx! :vb)
+(trg! :vb :distro trg-fx-distortion2 :in-amount [0.195])
+
+(trg! :vb :reverb trg-fx-reverb :in-sig-a [0.23])
+
+(stp :distro)
+
+(stp :reverb)
 
 
+(lss)
 (stp :vb)
 
+(println (map find-note-name (chd :i :e2 :melodic-minor 8)))
 
+(volume! :vb 0.96)
+
+
+
+(trg :kick2 kick2
+     :in-trg  [[r 1] 1 [r r r 1] 1] [ (rep 4 [r r r r (rep 4 1) r r r ])]
+     :in-freq [60]
+     :in-amp [1])
+
+(volume! :kick2 1)
+
+
+(stp :kick2)
+
+(sta)
+
+
+(lss)
 ;;;;
 ;;;;
-
+;;;;
 
 ;;;;
-;;;; Sample exists
-
+;;;; ;;;;;Sample exists
+;;;;
 (add-sample "d" (string-to-buffer (generate-markov-text "kalevala.txt" 10)))
 
 
@@ -277,7 +332,7 @@
 
 
 
-(trg :sampl2 trg-sampler_i
+(trg :sampl2 trg-sampler
      :in-trg
      ;(fst [(rep 8 "e")])
      ;(fst [(rep 8 "g")])
@@ -294,11 +349,14 @@
      :in-loop [0]
      :in-start-pos [0]
      :in-step [2] [1.5] [2] [2.5] ;[-2]                    ; (slw 8 [(sir 32 2.5 1 32)])
-     :in-amp [1.0])
+     :in-amp [0.3])
 
 
+(stp :sampl2)
 
-(trg :op overpad_i
+(sta)
+
+(trg :op overpad
      :in-trg  (rep 3 [ "e2"]) ["b2"]
      (rep 7 ["a2" ])
      (rep 2 ["d3"]) ["b2"]
@@ -310,7 +368,9 @@
      :in-release [0.35]
      :in-amp [0.19])
 
-(fx! :op fx-distortion2)
+(trg! :op :opdsitro trg-fx-distortion2)
+
+;(fx! :op fx-distortion2)
 
 (clrfx! :op)
 
@@ -320,7 +380,7 @@
 (sta)
 
 (trg :bow2
-     bowed_i
+     bowed
      :in-trg  [1]; (rep 8 (fll 32 [1 0]) ) (rep 4  (fll 16 [1 [0 1]]))
      :in-amp [0.81]
      :in-note  ["a2"]
@@ -360,35 +420,39 @@
 ;;;
 
 (trg :samplDrum trg-sampler
-     :in-trg ;["sn3"  "bd1"]
-     ;(rep 3 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
-     ;[(evr 3 "bass23" (partition 1 (sfl (fll 8 [["bd2"] ["sn3"] [r]]))))]
+     :in-trg; ["sn3"  "bd1"] (rep 3 [r])
+    (rep 3 [["bd1" "sn2"]  [r ["bd2" "sn2"]]])
+    [(evr 3 "bass23" (partition 1 (sfl (fll 8 [["bd2"] ["sn3"] [r]]))))]
 
-     ;(rep 3 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
-     ;[(evr 5 "bass23" (partition 1 (sfl (fll 16 [["bd2"] ["sn2"] [r]]))))]
+    (rep 3 [["bd1" "sn2"]  [r ["bd2" ["sn2" "sn2"]]]])
+    [(evr 3 "bass23" (partition 1 (sfl (fll 8 [["bd2"] ["sn3"] [r]]))))]
 
-     ;(rep 3 [["bd1" "sn2"] [r ["bd2" ["bd2" "sn2"]]]])
-     ;[(evr 5 "bass24" (partition 1 (sfl (fll 16 [["bd4"] ["sn3"] [r]]))))]
 
-      ;(rep 3 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
+    ;;  (rep 3 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
+    ;;  [(evr 5 "bass23" (partition 1 (sfl (fll 16 [["bd2"] ["sn2"] [r]]))))]
+
+    ;;  (rep 3 [["bd1" "sn2"] [r ["bd2" ["bd2" "sn2"]]]])
+    ;;  [(evr 5 "bass24" (partition 1 (sfl (fll 16 [["bd4"] ["sn3"] [r]]))))]
+
+    ;;  (rep 3 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
      ;[(evr 2 "bass24" (partition 1  (fll 16 [["bd2"] ["sn3" "sn2"] [r]])))]
 
 
-     ;(rep 2 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
-    ;[(evr 1 "bass23" (partition 1 (sfl (fll 8 [["bd2"] ["sn2" "sn3"] [r]]))))];
-    [(evr 1 "bass24" (partition 1 (sfl (fll 16 [["bd2"] ["sn3"] [r]]))))];
+    ;;  (rep 2 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
+    ;;  [(evr 1 "bass23" (partition 1 (sfl (fll 8 [["bd2"] ["sn2" "sn3"] [r]]))))];
+    ;; [(evr 1 "bass24" (partition 1 (sfl (fll 16 [["bd2"] ["sn3"] [r]]))))];
 
-    ;(rep 3 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
-     ;[(evr 4 "bass23" (partition 1 (sfl (fll 8 [["bd2"] ["sn2"] [r]]))))]
+    ;;  (rep 3 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
+    ;;  [(evr 4 "bass23" (partition 1 (sfl (fll 8 [["bd2"] ["sn2"] [r]]))))]
 
-    ;(rep 3 [["bd1" "sn2"] [r ["bd2" ["bd2" "sn2"]]]])
-    ;[(evr 1 "bass24" (partition 1 (sfl (fll 8 [["bd4"] ["sn3"] [r]]))))]
+    ;;  (rep 3 [["bd1" "sn2"] [r ["bd2" ["bd2" "sn2"]]]])
+    ;; [(evr 1 "bass24" (partition 1 (sfl (fll 8 [["bd4"] ["sn3"] [r]]))))]
 
-    ;(rep 3 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
-    ;[(evr 4 "bass24" (partition 1  (fll 8 [["bd2"] ["sn4" "sn2"] [r]])))]
+    ;; (rep 3 [["bd1" "sn2"] [r ["bd2" [(rep 1 "sn2")]]]])
+    ;; [(evr 4 "bass24" (partition 1  (fll 8 [["bd2"] ["sn4" "sn2"] [r]])))]
 
 
-     ;(rep 16 [(evr 2 "bass21" (partition 1  (fll 16 [["bd2"] ["sn3" "sn2"] [r]])))])
+    ;;  (rep 16 [(evr 2 "bass21" (partition 1  (fll 16 [["bd2"] ["sn3" "sn2"] [r]])))])
      :in-buf ":in-trg"
      :in-loop [0]
      :in-start-pos [0]
@@ -397,16 +461,24 @@
 
 (stp :samplDrum)
 
+(trg! :samplDrum :sddist trg-fx-distortion)
+
+
 (lss)
 
 (sta)
 
 
 
-(trg :op overpad_i
+(trg :op overpad
      :in-trg
- (rep 7 [(rep 16 "e2")]) [(rep 16 "b3")]
-     ;(rep 8 [(rep 8 "d2") ])
+     (rep 2 [(rep 8 "e2")]) [(rep 8 "bb2")]
+     ["g2" "d3" "f3" "d3" "e2" "bb2" ["g2" "f3" "g2"] "f3"]
+
+
+     (rep 2 [(rep 8 "e2")]) [(rep 8 "b2")]
+     [["g2" "d3" "f3" ]  "e2" ["bb2" "f3" "e2"] "f3"]
+                                        ;(rep 8 [(rep 8 "d2") ])
      ;(rep 2 [(rep 8 "d3")]) [(rep 8 "b2")] ["a2" "a2" "a2" "a2" "e2" "e2" "e2" ["b2" "e2"]]
 
      ;(rep 3 [(rep 8 "e2")]) [(rep 8 "e2")]
@@ -435,17 +507,24 @@
      :in-amp [1])
 
 
-(fx! :op fx-distortion2)
+(trg! :op :opf trg-fx-freeverb :in-room-size [2])
 
-(fx! :op fx-feedback)
 
-(fx! :op fx-echo)
+(println (map find-note-name (chr :e2 :minor)))
+
+(println (map find-note-name (chd :i :e2 :locrian 8)))
+
+;(fx! :op fx-distortion2)
+
+;(fx! :op fx-feedback)
+
+;(fx! :op fx-echo)
 
 (clrfx! :op)
 
 (stp :op)
 
-
+(sta)
 
 ;;;;;
 ;;;;;
@@ -498,6 +577,8 @@
 (fx! :gb fx-distortion2)
 
 
+
+(sta)
 
 
 
