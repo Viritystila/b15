@@ -6,7 +6,7 @@
         [trigger.samples]
         [trigger.trg_fx] [overtone.core]) (:require [viritystone.tone :as t]))
 
-(require '[trigger.insts :refer :all])
+;(require '[trigger.insts :refer :all])
 
 (future
   (println "Begin loading SuperDirt samples")
@@ -68,8 +68,8 @@
 (add-tts-sample "i"   "daq.txt"  200)
 
 (trg :sampl trg-sampler
-     :in-trg  [(rep 8 1)]; [r]            ; [1] [r]
-     :in-buf  ["bd1"] ; ["f"]  ["g"] ["f"] ["bd1"]    ; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
+     :in-trg  [1] [r] [r] [r]            ; [1] [r]
+     :in-buf  ["b bd1"] ; ["f"]  ["g"] ["f"] ["bd1"]    ; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
      :in-loop [0]
      :in-start-pos [0]                ;[(range 10000 20000 1000)] [0] [0]
      :in-step [2] [1.75]           ;(slw 1 [(sir 32 2.5 1 32)])
@@ -80,17 +80,16 @@
 
 (trg! :sampl :e1 trg-fx-distortion )
 
-
-(stp :e1)
-
 (lss)
-
-(fx! :sampl fx-echo)
 
 ()
 (stp :sampl)
 
 (sta)
+
+(lss)
+
+(stp :kick2)
 
 (trg :sampl2 trg-sampler_i
      :in-trg
@@ -167,7 +166,7 @@
 
 (set-pattern-duration (/ 1 0.5625))
 
-(trg :kick2 kick2_i :in-trg (rep 3 (del 1 1 (del 0 3 [1 1 ]))) [[1 1 1 r r r r r] 1]
+(trg :kick2 kick2 :in-trg (rep 3 (del 1 1 (del 0 3 [1 1 ]))) [[1 1 1 r r r r r] 1]
       (rep 3 (del 1 1 (del 0 3 [1 1 ])))  [[r r r 1] [r 1 1 r r r r r]]
      :in-amp [1])
 
@@ -207,9 +206,10 @@
 
 
 (trg :sampl trg-sampler
-     :in-trg  [r]
-     :in-buf ["k"]          ; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
+     :in-trg  [r]; [1 1 1 1 1 1 1 1]
+     :in-buf ["b k_2"]          ; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
      :in-loop [1]
+     :in-start-pos [0]; [(range 0 120000 1000)]
      :in-step (rep 7 [2])(slw 1 [(sir 32 2.5 1 32)])
      :in-amp [0.3])
 
@@ -220,10 +220,15 @@
       :in-delay-time (slw 8 [(sir 32 0.5 0.5 32)])
       :in-amp [1])
 
+(volume! :sampl 2)
 
 (lss)
 
 (stp :keffect)
+
+(stp :sampl)
+
+(sta)
 
 (trg :nh hat2
      :in-trg  (rep 3 [1 1]) [1 [1 1 r r] 1 [r r 1 1]]
@@ -264,15 +269,15 @@
                                         ;[["a4" "d4"] "e4" "b4" "b4"]
      ;[["b4" "e4"] "b4" "b4" ["e4" ["e4" "d4"]] ]
      ;(repeat  3 [r])
-     [(rep 16 "a5")]
-     [(rep 16 "b5")]
-     [(rep 16 "d5")]
-     [(rep 2 "e4")  (rep 2 "c#3")  (rep 2 "b2")  (rep 2 "b1")]
-     [(rep 16  "b1")]
-     [(rep 16 "d1")]
-     [(rep 16 "a1")]
-     (fst 1 ["c#1" "e2" "b3" "b4"])
-     :in-gate-select  (rep 3 [0]) [1]    ;(rep 4 [0])
+     [(rep 16 "n a5")]
+     [(rep 16 "n b5")]
+     [(rep 16 "n d5")]
+     [(rep 2 "n e4")  (rep 2 "n c#3")  (rep 2 "n b2")  (rep 2 "n b1")]
+     [(rep 16  "n b1")]
+     [(rep 16 "n d1")]
+     [(rep 16 "n a1")]
+     (fst 1 ["n c#1" "n e2" "n b3" "n b4"])
+     :in-gate-select  (rep 3 [0] ) [1 0]    ;(rep 4 [0])
      :in-amp [1.4]
      :in-note  ":in-trg"
      :in-a [0.001]
@@ -280,9 +285,9 @@
      :in-s [0.945]
      :in-r [3.85])
 
-(trg! :vb :distro trg-fx-distortion2 :in-amount [0.195])
+(trg! :vb :distro trg-fx-distortion2 :in-amount [0.65])
 
-(trg! :vb :reverb trg-fx-reverb :in-sig-a [0.23])
+(trg! :vb :reverb trg-fx-reverb :in-sig-a [0.13])
 
 (stp :distro)
 
@@ -294,8 +299,9 @@
 
 (println (map find-note-name (chd :i :e2 :melodic-minor 8)))
 
-(volume! :vb 0.96)
+(volume! :vb 0.36)
 
+(rpl 2 44 4 5 6 7   3 3 5 6  )
 
 
 (trg :kick2 kick2
@@ -310,6 +316,19 @@
 
 (sta)
 
+
+(trg :samplDrum trg-sampler
+     :in-trg [1 1 1 1] [r]
+     :in-buf ["b bd1"]
+     :in-loop [0]
+     :in-start-pos [100]
+     :in-step [2.0]
+     :in-amp [0.7])
+
+(set-mixer-out-channel :samplDrum 0)
+
+
+(stp :samplDrum)
 
 (lss)
 ;;;;
@@ -537,7 +556,7 @@
 
 
 
-(trg :sampl trg-sampler_i
+(trg :sampl trg-sampler
      :in-trg  [r]
      :in-buf ["i"]; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
      :in-loop [1]
@@ -552,7 +571,7 @@
 
 
 (trg :gb
-     grunge-bass_i
+     grunge-bass
      :in-trg   ; [(rep 6 "a4")]
                                         ;(vec (repeat 2 (seq ["b4" "b4" "b4" ["e4" ["e4" "d4"]] ])))
                                         ;[["a4" "d4"] "e4" "b4" "b4"]
@@ -566,7 +585,7 @@
      ;["d5"]
      ;["e5" "d3" "b2" "b4"]
      :in-gate-select  [1] ; (rep 4 [1]) (rep 4 [0])
-     :in-amp [0.05]
+     :in-amp [0.5]
      :in-note  ":in-trg"
      :in-a [0.0001]
      :in-d [0.93]
@@ -574,18 +593,20 @@
      :in-r [0.25]; (slw 32 [(range 0.1 1 0.01)])
      )
 
-(fx! :gb fx-distortion2)
 
+(trg! :gb :gdist trg-fx-distortion2 :in-amount [0.95])
 
+(stp :gb)
+
+(trg! :gb :greverb trg-fx-reverb :in-sig-a [0.033])
+
+(volume! :gb 1)
 
 (sta)
 
 
-
-
-
 (trg :mooger
-    mooger_i
+    mooger
     :in-trg    (rep 2 (fst 4 ["b3" "d4" "e3" "a3"]))
     (rep 2 (fst 4 ["a3" "b3" "d4" "e3"]))
      (rep 2 (fst 4 ["e3" "a3" "d4" "b3"]))
@@ -596,13 +617,13 @@
     :in-amp [1.025]
     :in-note ":in-trg"
     :in-gate-select [1]
-    :in-osc1 [0] [0] [1] [1] [2] [2]
+    :in-osc1 [0]
     :in-osc2 [2]
     :in-attack [0.021]
     :in-decay [0.25]
     :in-sustain [0.3]
     :in-release [0.3]
-    :in-cutoff   [3400]
+    :in-cutoff   [1400]
     :in-fattack [0.022]
     :in-fdecay [0.29]
     :in-fsustain [0.3]
@@ -610,9 +631,6 @@
     :in-osc2-level [2]
     :in-osc1-level [2])
 
-(fx! :mooger fx-echo)
-
-(clrfx! :mooger)
 
 
 
