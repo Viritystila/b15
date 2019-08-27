@@ -206,20 +206,20 @@
 
 
 (trg :sampl trg-sampler
-     :in-trg  [r] [1 1 1 1 1 1 1 1]
+     :in-trg  [r]; [1 1 1 1 1 1 1 1]
      :in-buf ["b k_2"]          ; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
      :in-loop [1]
-     :in-start-pos [0] [(range 0 120000 1000)]
+     :in-start-pos [0]; [(range 0 120000 1000)]
      :in-step (rep 7 [2])(slw 1 [(sir 32 2.5 1 32)])
      :in-amp [0.3])
 
 (sir 32 404040 1 32)
 
 (trg :sampl trg-sampler
-     :in-trg  [1 1 1 1]
-     :in-buf ["b k_2"]          ; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
+     :in-trg  [1 1 1 1 1 1 1 ] [1 1 1 1 1 1 1 [(rep 4 1)]]
+     :in-buf ["b k"]          ; ["g"] (repeat 4 ["f"]) (repeat 4 ["e"])
      :in-loop [1]
-     :in-start-pos [(range 0 404040 10000)]
+     :in-start-pos [(range 0 404040 5000)]
      :in-step (rep 7 [2]) ;(slw 1 [(sir 32 2.5 1 32)])
      :in-amp [0.73])
 
@@ -254,7 +254,7 @@
 
 (trg :nh hat2
      :in-trg  (rep 4 [(rep 8 1)])
-     ;[(rep 16 1)]
+     [(rep 16 1)]
      ;[[(rep 16 1)] [(rep 4 1 )] [(rep 64 1)] 1]
      ;[r]
      :in-amp [0.4]
@@ -348,6 +348,22 @@
      :in-step [2.0]
      :in-amp [0.7])
 
+
+
+(trg :samplDrum trg-sampler
+     :in-trg (rpl 2 ["b bd1" "b sn1" "b sn2" ["b bd1" "b bd2"]] (rep 3 ["b bd1" "b sn1" "b sn2" "b bd2"]))
+     ;[(acc 2 (rep 16 ["b bd2 " "b sn2"])) "b bd2" ["b bd1" "b sn3"] "b bd1"]
+     [ (acc (fst 8 ["b sn3 " "b sn2"])) (fst 8 ["b sn3 " "b sn2"])  ( rep 5 r)  (dcl (fst 8 ["b sn3 " "b sn2"])) ]
+
+      ;[ (fst 8 ["b bd2 " "b sn2"]) (fst 16 ["b bd2 " "b sn2"]) ( rep 16 ["b bd2 " "b sn2"])  (fst 8 ["b bd2 " "b sn2"])]
+     ;[[(rep 32 "b bd2 " "b sn2")] [(rep 16 "b sn3 " "b sn2")]]
+     :in-buf ":in-trg"
+     :in-loop [0]
+     :in-start-pos [0]
+     :in-step [2.0]
+     :in-amp [0.7])
+
+
 (set-mixer-out-channel :samplDrum 0)
 
  (rpl 3 ["b bd1" "b sn1" "b sn2" ["b bd1" "b bd2"]] (rep 4 ["b bd1" "b sn1" "b sn2" "b bd2"]))
@@ -359,6 +375,7 @@
 
 (def pbSm (map buffer-id  (get-buffer-ids :sampl :pattern-value-buf)))
 
+(rep 3 [1 2 3] [5 4 3])
 
 pbSd
 
