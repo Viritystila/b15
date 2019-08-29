@@ -252,8 +252,8 @@
 (stp :nh)
 
 (trg :nh hat2
-     :in-trg  (rep 4 [(rep 8 1)])
-     [(rep 16 1)]
+     :in-trg  (rep 4 [(range 8)])
+     [(range 16)]
      ;[[(rep 16 1)] [(rep 4 1 )] [(rep 64 1)] 1]
      ;[r]
      :in-amp [0.4]
@@ -670,8 +670,33 @@
     :in-osc1-level [2])
 
 
+(trg :mooger
+    mooger
+    :in-trg    (rep 2 (fst 4 ["n b3" "n d4" "n e3" "n a3"]))
+    (rep 2 (fst 4 ["n a3" "n b3" "n d4" "n e3"]))
+     (rep 2 (fst 4 ["n e3" "n a3" "n d4" "n b3"]))
+     (rep 2 (fst 4 ["n b3" "n e3" "n a4" "n d4"]))
+    (rep 8 [(rep 16 "n d4")])
+    (rep 8 [(rep 16 "n e3")])
+    (rep 8 [(rep 16 "n a3")])
+    :in-amp [1.025]
+    :in-note ":in-trg"
+    :in-gate-select [1]
+    :in-osc1 [0]
+    :in-osc2 [2]
+    :in-attack [0.021]
+    :in-decay [0.25]
+    :in-sustain [0.3]
+    :in-release [0.3]
+    :in-cutoff   [1400]
+    :in-fattack [0.022]
+    :in-fdecay [0.29]
+    :in-fsustain [0.3]
+    :in-frelease [0.4]
+    :in-osc2-level [2]
+    :in-osc1-level [2])
 
-
+(stp :mooger)
 ;;;;;
 ;;;;;
 ;;;;;
@@ -802,6 +827,8 @@
 (trg :kick2 kick2_i :in-trg   (rep 17 [1 1 1 1]) [1 [1 r] 1  [1 1]]
      :in-amp [3])
   )
+
+(stp :kick2)
 
 (trg :tom1
      tom
@@ -1106,7 +1133,7 @@
 
 (t/bufferSection 4 0 0)
 
-(t/set-video-fixed 0 :fw)
+(t/set-video-fixed 0 :static)
 
 (t/set-video-fixed 1 :fw)
 
@@ -1117,17 +1144,17 @@
 (t/set-video-fixed 4 :fw)
 
 
-(on-trigger (get-trigger-val-id :bow :in-trg) (fn [val] (t/set-dataArray-item 0 val)(t/set-fixed-buffer-index 1 :inc) ) ::bow1 )
+(on-trigger (get-trigger-val-id :samplDrum :in-trg) (fn [val] (t/set-dataArray-item 0 val)(t/set-fixed-buffer-index 0 :inc) ) ::sd1 )
 
 
 (remove-event-handler ::bow1)
 
-(on-trigger (get-trigger-val-id :ks1 :in-trg) (fn [val] (t/set-dataArray-item 2 val) ) ::ks1 )
+(on-trigger (get-trigger-val-id :nh :in-trg) (fn [val] (t/set-dataArray-item 2 val) ) ::nh1s )
 
 (remove-event-handler ::ks1)
 
 
-(on-trigger (get-trigger-val-id :vb :in-note) (fn [val] (t/set-dataArray-item 1 val) ) ::vb-note )
+(on-trigger (get-trigger-val-id :op :in-note) (fn [val] (t/set-dataArray-item 1 val) ) ::vb-note )
 
 
 
@@ -1135,13 +1162,13 @@
 
 
 
-(on-trigger (get-trigger-val-id :kick :in-f3) (fn [val] (t/set-dataArray-item 2 val) ) ::kickf3 )
+(on-trigger (get-trigger-val-id :vb :in-note) (fn [val] (t/set-dataArray-item 3 val) ) ::vbnf )
 
 (remove-event-handler ::kickf3)
 
 
 
-(on-trigger (get-trigger-val-id :super :in-freq) (fn [val] (t/set-dataArray-item 3 val) (t/set-fixed-buffer-index 0 :ff (int val)) ) ::ks1_decay )
+(on-trigger (get-trigger-val-id :mooger :in-note) (fn [val] (t/set-dataArray-item 4 val) ) ::mg1)
 
 (remove-event-handler ::ks1_decay)
 

@@ -148,17 +148,18 @@ void main(void){
   float it1=iDataArray[1];
   float it2=iDataArray[2];
   float it3=iDataArray[3];
+  float it4=iDataArray[4];
   float it5=iDataArray[5];
 
   int textId=int(iDataArray[51]);
 
   vec2 uv = (gl_FragCoord.xy / iResolution.xy);
   //uv=gl_FragCoord.xy/vec2(1080,1920);
-  vec2 uv_noise=noiseUV(uv, 1, 20/(12 ));
+  vec2 uv_noise=noiseUV(uv, it3, 20/(12*it2 ));
 
   vec2 uvi=uv;
   uv.y=1.0-uv.y;
-  vec2 dsUV=distortUV(uv, uvi, iCam1, 1);
+  vec2 dsUV=distortUV(uv, uvi, iCam0, 1);
 
   vec4 t0 = texture2D(iChannel0,uv);
 
@@ -209,7 +210,7 @@ void main(void){
 
   vec4 pf = texture2D(iPreviousFrame, uvi);
 
-        vec4 glitchText=glitch(uv_noise, uv,  v0, v1, it0/2, iVideo0, iVideo1);
+        vec4 glitchText=glitch(uv_noise, uv,  v0, v1, it1/2, iVideo0, iVideo1);
 
         vec4 bgVid=v0;//mix(v3, pf, 0);
 
@@ -239,17 +240,17 @@ void main(void){
   //vec4 vt2_cr=vt2;
   //vec4 vt2Col= waveColors(vt2, uv, 0.1/it1, it1, 10.1/it1, 10);
   vec4 vt2=colorRemoval(v2, op2, 0.1, 1, 0, 0.3, 0.5);
-  vt2 = mix(vt2, op2, it1*sin(it1));
+  vt2 = mix(v0, pf, 0.1*it0);
           //vt2=op2;
   //Mukaan tulee mcsynth ja hapsiainen
 
-  vec4 wv= waveColors(v3n, uv, 1, 0.1, 0.1*it3*it3, 10);
-  vec4 vt3=colorRemoval(v0, wv, 0.18, 1, 0.0,0.0,0.0);
+  vec4 wv= waveColors(v2n, uv, 1, 0.1, 0.1*it2, 10);
+  vec4 vt3=colorRemoval(v0, v1n, 0.18, 1, 0.0,0.0,0.0);
   //vt2=op2;//op2;//vt3;//mix(wv, v0, 1/it0);
 
   //vt2=op2;
   //vt3=colorRemoval(v0, v2, 0.06, 1, 0,0,0);
-  vt2=mix(vt3, pf, 0.5*it3);
+  vt2=mix(vt3, pf, 0.00030001*it4*it4);
 
 
   //ja hapsiainen vaihtuu sormileikkiin, hiljennä Villelle finger commandoon
